@@ -16,7 +16,7 @@
         </p>
         <mt-button class="go" @click="login">登录</mt-button>
         <div class="tip">
-            <p>未注册的用户点此注册</p>
+            <p>未注册的用户点此 <router-link to="" @click.native="reg">注册</router-link> </p>
             <p>
                  登录即表示您同意
                 <router-link to="">用户协议</router-link>
@@ -29,10 +29,13 @@ export default {
     data(){
         return{
            uname:"",//用户名
-            upwd:""  //验证码
+            upwd:""  //密码
         }
     },
     methods:{
+        reg(){
+            this.$router.push("/register")
+        },
         login(){
             // 功能：完成用户登录操作
             // 1.创建正则表达式
@@ -59,7 +62,8 @@ export default {
                 console.log(res.data.code);
                 if(res.data.code==1){
                     // 1.跳转  /product 商品列表
-                this.$messagebox("消息","登录成功!")               
+                this.$messagebox("消息","登录成功!") 
+                this.$router.push("/")              
                 }else{
                     this.$toast("用户名和密码有误")
                 }
@@ -73,9 +77,18 @@ export default {
 }
 </script>
 <style scoped>
-    .enjoy-login .log{
+   .enjoy-login{
+       padding-top: 30px;
+    }
+    .enjoy-login .logo{
         text-align: center;
         margin-bottom:100px;
+        margin-bottom: 30px;
+    }
+    .enjoy-login:after{
+        content: "";
+        display: block;
+        clear: both;
     }
     .enjoy-login .logo img{
         height:50px;
@@ -113,7 +126,7 @@ export default {
         display: block;
         width: 308px;
         margin: 0 auto;
-        background-color: #1a1a1a;
+        background-color: orangered;
         font-family: PingFangSC-Medium;
         font-size: 16px;
         color: #e5e5e5;
@@ -132,7 +145,7 @@ export default {
         margin-bottom: 55px;
     }
     .enjoy-login .tip a{
-        color: #2c3038;
+        color: orangered;
         text-decoration: underline;
     }
 </style>

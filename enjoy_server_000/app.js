@@ -8,10 +8,13 @@
 //2:vue_server_000/进入命令行
 //  npm i mysql express express-session cors
 //3:加载四个第三方模块
+// const fs =require('fs')
 const express = require("express");
+// const multer= require('multer')
 const mysql = require("mysql");
 const cors = require("cors");
 const session = require("express-session");
+const bodyParser = require("body-parser");
 //4:配置数据库连接池:基本效率高保证
 var pool = mysql.createPool({
    host:"127.0.0.1",
@@ -41,43 +44,49 @@ server.use(session({
 server.use(express.static("public"))
 //9:启动监听端口  3000
 server.listen(3000);
-
+// 
+server.use(bodyParser.urlencoded({extended:true}));
+server.use(bodyParser.json())
 
 
 //功能：用户注册接口
 //1.注册路由
 server.post('/reg',function(req,res){
 	//1.1获取数据
-    var obj=req.body;
-	console.log(obj);
-	//1.2 验证是否为空
-	if(!obj.uname){
-	  res.send({code:401,msg:'uname required'});
-	//结束函数执行
-	return;
-	};
-	if(!obj.upwd){
-	    res.send({code:402,msg:'upwd required'});
-		return;
-	};
-	if(!obj.phone){
-	res.send({code:403,msg:'phone required'});
-	 return;
-	};
-	 if(!obj.email){
-	 res.send({code:404,msg:'email required'});
-		 return;
-	 };
+    var uname=req.body.uname;
+    var upwd=req.body.upwd;
+    var phone=req.body.phone;
+    var email=req.body.email;
+	  // console.log(obj);
 	 //1.3要执行sql语句
-	 pool.query('INSERT INTO ey_user SET ?',[obj],function(err,result){
+	 pool.query('select * from ey_user where uname= ?',[uname],(err,result)=>{
 	   if(err) throw err;
-	   //这表示如果数据插入成功，响应注册成功
-	   if(result.affectedRows>0){
-	   res.send({code:200,msg:'reg suc'});
-	   };
+	  //查询用户名是否被注册过
+	   if(result.length==0){
+     var sql = `insert into ey_user values(null,?,?,?,?)`;
+     pool.query(sql,[uname,upwd,email,phone],(err,result)=>{
+      if(err) throw err;
+      res.send({code:1,msg:"注册成功"})
+       })
+	   }else {
+       res.send({code:-1,msg:"用户名已注册"})
+     }
+   
 	 });
-  
 });
+// 根据用户名称查询是否可以注册get
+// server.get("/checkuname/:uname",(req,res)=>{
+//   var $uname = req.params.uname;
+//   var sql = "select * from ey_user where uname=? ";
+//   pool.query(sql,[$uname],(err,result)=>{
+//     if(err) throw err;
+//     if(result.length>0){
+//       res.send("1")
+//     }else{
+//       res.send("0")
+//     }
+//   })
+// })
 
 
 
@@ -112,6 +121,84 @@ server.get("/login",(req,res)=>{
    }
   //5:将结果发送脚手架  
  })
+})
+
+server.get("/product",(req,res)=>{
+  //2:获取(脚手架发来)数据 pno pageSize
+  var pno = req.query.pno;
+  var ps = req.query.pageSize;
+  //3:设置数据默认值
+  if(!pno){pno=1}
+  if(!ps){ps=150}
+  //4:创建变量offset计算数据库第一参数
+  var offset = (pno-1)*ps;
+  //5:给pageSize造型整型
+  ps = parseInt(ps);
+  //6:创建sql1 查询当前页内容
+  var sql1 = "SELECT ppublic,title,ftitle FROM ey_index_hotel LIMIT ?,?";
+  //7:发送sql1语句
+  pool.query(sql1,[offset,ps],
+   (err,result)=>{
+      //查询成功回调函数 sql1
+      if(err)throw err;
+      //查询结果
+      var data = result;
+      //console.log(result);
+     //8:在执行成功回调函数中创建第二条 
+     var sql2 = "SELECT count(pid) as c FROM ey_index_hotel";
+     //9:查询记录总数
+     pool.query(sql2,(err,result)=>{
+       if(err)throw err;
+       var pageCount = Math.ceil(result[0].c/ps);
+       res.send(
+         {code:1,   //查询编码
+           msg:"查询成功",//原因
+           rows:data, //当前页内容
+           pageCount:pageCount//总页
+         })
+     })
+     //10:将所有查询结果封装成
+  })
+ })
+
+
+ // 商品详情接口
+server.get("/productt",(req,res)=>{
+  var pid=req.query.pid;
+  // var pro={};
+  if(pid!==undefined){
+    var sql1=`select * from ey_product where pid=?`;
+    pool.query(sql1,[pid],(err,result)=>{
+      if(err)throw err;
+      res.send(result[0]);
+    })
+  }else{
+    res.send("错误");
+  }
+ })
+
+//  商品显详情页 猜你喜欢接口
+ server.get("/productd",(req,res)=>{
+  
+  // var pro={};
+    var sql1=`select * from ey_product`;
+    pool.query(sql1,(err,result)=>{
+      if(err)throw err;
+      res.send(result);
+    })
+ })
+
+
+
+//  判断是否登录
+// 1.get  /checkLogin
+server.get("/checkLogin",(req,res)=>{
+  // 获取当前登录用户uid
+  var uid = req.session.uid;
+  if(!uid){
+    res.send({code:-1,msg:"请登录"});
+    return;
+  }
 })
 
 

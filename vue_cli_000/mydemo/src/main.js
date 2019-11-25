@@ -22,11 +22,26 @@ Vue.prototype.axios = axios;
 //3:将mint-ui对象注册vue实例中
 Vue.use(MintUI)
 // Vue.config.productionTip = false
+import Router from 'vue-router'
+const routerPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+  return routerPush.call(this, location).catch(error=> error)
+}
+
+
 
 //单独引入mint-ui样式文件
 import "mint-ui/lib/style.css"
 //4.引入姿态替图片样式文件
 // import "./font/iconfont.css"
+// 5.vant组件
+import Vant from 'vant';
+import 'vant/lib/index.css';
+// v-touch
+import VueTouch from "vue-touch";
+Vue.use(VueTouch, {name:'v-touch'})
+Vue.use(Vant)
+
 
 /* eslint-disable no-new */
 new Vue({

@@ -30,6 +30,7 @@
     <div class="rewards">
       <div class="title"> 奖励明细</div>
     </div>
+    <table style="claer:both"></table>
     <div class="yqdamu" v-show="yincang" @click="btn2">
       <div>点击右上角</div>
       <img src="../../../static/jiantou.png">
@@ -54,8 +55,10 @@ export default {
 </script>
 
 <style scoped>
-  
-
+   .img1{
+     display: block;
+     padding-top:54px;
+   }
    .yqdamu{
     display: block;
     position: fixed;
@@ -64,7 +67,7 @@ export default {
     top:0;
     bottom:0;
     background-color:rgba(0,0,0,.7);
-    z-index: 1000;
+    z-index: 100;
     text-align:right;
   }
   .yqdamu div{
@@ -84,6 +87,8 @@ export default {
     position:relative;
     margin:60px 40px;
     display: block;
+  
+    padding-bottom:30px;
   }
   .rewards .title{
     width:165px;
@@ -95,8 +100,14 @@ export default {
     left:50%;
     margin-left:-84px;
     background-color:#fff;
+    margin-bottom: 50px;
   }
-  *{margin:0 auto}
+   /* .rewards::after{
+     content: "";
+     display: block;
+     clear: both;
+   } */
+  /* *{margin:0 auto} */
   ul{
     list-style:none;
     margin:0 20px;
@@ -133,7 +144,7 @@ export default {
     padding:12px;
   }
   .btn{
-    background:#f00;
+    background:orangered;
     color:#fff;
     font:14px "宋体";
     width:30%;
